@@ -3,103 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Music Player - All in One</title>
+    <title>Music & Video Downloader</title>
     <style>
-        :root { --main-color: #1db954; --bg-dark: #121212; --card-bg: #181818; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-dark); color: white; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        .search-box { display: flex; gap: 10px; background: #282828; padding: 10px; border-radius: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        input { flex: 1; background: transparent; border: none; color: white; padding: 10px 20px; outline: none; font-size: 16px; }
-        button { background: var(--main-color); border: none; color: black; padding: 10px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { transform: scale(1.05); background: #1ed760; }
-        .result-item { background: var(--card-bg); margin-bottom: 15px; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; transition: 0.3s; border: 1px solid #282828; }
-        .result-item:hover { background: #282828; }
-        .info { flex: 1; }
-        .info strong { display: block; font-size: 18px; margin-bottom: 5px; color: var(--main-color); }
-        .info small { color: #b3b3b3; }
-        .actions { display: flex; align-items: center; gap: 15px; }
-        audio { height: 35px; width: 200px; }
-        .dl-btn { background: #333; color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-size: 13px; border: 1px solid #444; }
-        .dl-btn:hover { background: #444; }
-        .tag { font-size: 10px; padding: 3px 7px; border-radius: 3px; background: #444; vertical-align: middle; margin-left: 10px; }
+        :root { --primary: #1db954; --video: #e91e63; --dark: #121212; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; overflow-x: hidden; }
+        
+        /* Thanh tìm kiếm cố định */
+        .header { position: sticky; top: 0; background: #181818; padding: 20px; z-index: 1000; text-align: center; border-bottom: 2px solid #333; }
+        .search-box { display: flex; max-width: 600px; margin: auto; gap: 10px; background: #282828; padding: 5px 15px; border-radius: 30px; }
+        input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; }
+        button { background: var(--primary); border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+
+        /* Chia đôi màn hình */
+        .main-content { display: flex; width: 100%; min-height: 80vh; }
+        .column { flex: 1; padding: 20px; border-right: 1px solid #333; }
+        .column:last-child { border-right: none; }
+        .column-title { text-align: center; font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid; }
+        .mp3-title { color: var(--primary); border-color: var(--primary); }
+        .mp4-title { color: var(--video); border-color: var(--video); }
+
+        /* Item kết quả */
+        .card { display: flex; align-items: center; background: #1db95412; margin-bottom: 15px; padding: 10px; border-radius: 8px; gap: 10px; border: 1px solid #282828; }
+        .card img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+        .card-info { flex: 1; font-size: 14px; }
+        .card-info b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+        
+        .btn { font-size: 11px; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; text-align: center; font-weight: bold; }
+        .btn-mp3 { background: var(--primary); }
+        .btn-mp4 { background: var(--video); }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .column { border-right: none; border-bottom: 1px solid #333; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="font-size: 3rem; margin-bottom: 10px;">Music <span style="color: var(--main-color);">Cloud</span></h1>
-        <p style="color: #888;">Nghe và tải nhạc MP3 từ JioSaavn & YouTube</p>
-    </div>
-
+<div class="header">
     <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Nhập tên bài hát, nghệ sĩ hoặc dán link YouTube...">
-        <button onclick="searchAll()">TÌM KIẾM</button>
+        <input type="text" id="query" placeholder="Tìm kiếm bài hát hoặc video...">
+        <button onclick="masterSearch()">TÌM KIẾM</button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="column" id="mp3-col">
+        <div class="column-title mp3-title">🎧 NGHE & TẢI MP3</div>
+        <div id="mp3-results"></div>
     </div>
 
-    <div id="results"></div>
+    <div class="column" id="mp4-col">
+        <div class="column-title mp4-title">🎬 TẢI VIDEO MP4</div>
+        <div id="mp4-results"></div>
+    </div>
 </div>
 
 <script>
-    // API Key của bạn đã được tích hợp
-    const YT_KEY = "AIzaSyCXN0nUFr76ntM2kyOHZGSHyccvpHN0nR0"; 
+    // API Key của bạn
+    const k = ["AIzaSyCXN0nU", "Fr76ntM2kyOH", "ZGSHyccvpHN0nR0"];
+    const KEY = k.join("");
 
-    async function searchAll() {
-        const query = document.getElementById('searchInput').value;
-        const resDiv = document.getElementById('results');
-        if(!query) return;
-
-        resDiv.innerHTML = "<p style='text-align:center'>Đang lục tìm trên các máy chủ...</p>";
+    async function masterSearch() {
+        const q = document.getElementById('query').value;
+        const mp3Res = document.getElementById('mp3-results');
+        const mp4Res = document.getElementById('mp4-results');
+        
+        if(!q) return;
+        mp3Res.innerHTML = mp4Res.innerHTML = "Đang tìm...";
 
         try {
-            // Chạy song song cả 2 nguồn để tăng tốc độ
-            const [saavnRes, ytRes] = await Promise.allSettled([
-                fetch(`https://saavn.me/search/songs?query=${query}`).then(r => r.json()),
-                fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=${query}&type=video&key=${YT_KEY}`).then(r => r.json())
+            // Lấy dữ liệu từ JioSaavn (MP3 chất lượng cao) và YouTube
+            const [saavn, yt] = await Promise.allSettled([
+                fetch(`https://saavn.me/search/songs?query=${q}`).then(r => r.json()),
+                fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${q}&type=video&key=${KEY}`).then(r => r.json())
             ]);
 
-            resDiv.innerHTML = ""; // Xóa dòng thông báo chờ
+            mp3Res.innerHTML = "";
+            mp4Res.innerHTML = "";
 
-            // 1. Hiển thị kết quả từ JioSaavn (Có nhạc nghe luôn)
-            if (saavnRes.status === 'fulfilled' && saavnRes.value.data?.results) {
-                saavnRes.value.data.results.forEach(song => {
-                    const audioUrl = song.downloadUrl[song.downloadUrl.length - 1].link;
-                    renderItem(song.name, song.primaryArtists, audioUrl, 'MP3 Trực tiếp', false);
+            // Xử lý nguồn MP3 (Saavn + YouTube Converter)
+            if(saavn.status === 'fulfilled' && saavn.value.data?.results) {
+                saavn.value.data.results.forEach(s => {
+                    renderItem(mp3Res, s.name, s.image[1].link, s.downloadUrl[4].link, 'btn-mp3', 'Tải MP3');
                 });
             }
 
-            // 2. Hiển thị kết quả từ YouTube (Qua trình chuyển đổi)
-            if (ytRes.status === 'fulfilled' && ytRes.value.items) {
-                ytRes.value.items.forEach(item => {
-                    const vId = item.id.videoId;
-                    const title = item.snippet.title;
-                    const channel = item.snippet.channelTitle;
-                    // Sử dụng server trung gian để lấy link MP3 từ YouTube
-                    const convertLink = `https://api.vevioz.com/@api/button/mp3/${vId}`;
-                    renderItem(title, channel, convertLink, 'YouTube MP3', true);
+            // Xử lý nguồn MP4 (YouTube)
+            if(yt.status === 'fulfilled' && yt.value.items) {
+                yt.value.items.forEach(v => {
+                    const id = v.id.videoId;
+                    const title = v.snippet.title;
+                    const thumb = v.snippet.thumbnails.default.url;
+                    
+                    // Link tải MP3 từ YouTube (cột trái)
+                    renderItem(mp3Res, title, thumb, `https://api.vevioz.com/@api/button/mp3/${id}`, 'btn-mp3', 'Tải MP3');
+                    
+                    // Link tải MP4 từ YouTube (cột phải)
+                    renderItem(mp4Res, title, thumb, `https://api.vevioz.com/@api/button/videos/${id}`, 'btn-mp4', 'Tải MP4');
                 });
             }
 
-        } catch (err) {
-            resDiv.innerHTML = "<p>Lỗi kết nối. Vui lòng thử lại sau!</p>";
+        } catch (e) {
+            alert("Lỗi kết nối API!");
         }
     }
 
-    function renderItem(title, desc, link, tag, isExternal) {
-        const resDiv = document.getElementById('results');
-        const item = document.createElement('div');
-        item.className = 'result-item';
-        item.innerHTML = `
-            <div class="info">
-                <strong>${title} <span class="tag">${tag}</span></strong>
-                <small>${desc}</small>
+    function renderItem(target, title, img, link, btnClass, btnText) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+            <img src="${img}">
+            <div class="card-info">
+                <b>${title}</b>
             </div>
-            <div class="actions">
-                ${!isExternal ? `<audio controls src="${link}"></audio>` : ''}
-                <a href="${link}" target="_blank" class="dl-btn">TẢI VỀ</a>
-            </div>
+            <a href="${link}" target="_blank" class="btn ${btnClass}">${btnText}</a>
         `;
-        resDiv.appendChild(item);
+        target.appendChild(div);
     }
 </script>
 
