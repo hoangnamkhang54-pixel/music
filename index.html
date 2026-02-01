@@ -3,75 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khang Space Music - .COM Edition</title>
+    <title>Khang Space Music - .COM</title>
     <style>
-        :root { --primary: #00d2ff; --galaxy: #6a11cb; --dark: #090a0f; }
+        :root { --primary: #00d2ff; --accent: #ff416c; --dark: #050505; }
         
         body {
             margin: 0; padding: 0; background: var(--dark);
-            color: white; font-family: 'Segoe UI', sans-serif;
+            color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh; overflow-x: hidden;
         }
 
-        /* Nền sao lấp lánh */
         #star-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-        .container { max-width: 1000px; margin: auto; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; padding: 20px; }
 
-        /* Tiêu đề .COM ngầu */
-        .logo-area { text-align: center; padding: 30px 0; }
-        .logo-text { font-size: 2.5rem; font-weight: 900; letter-spacing: 3px; margin: 0; text-shadow: 0 0 15px var(--primary); }
+        /* Header logo */
+        .logo-area { text-align: center; padding: 20px 0; }
+        .logo-text { font-size: 2.8rem; font-weight: 900; letter-spacing: 4px; margin: 0; text-shadow: 0 0 20px var(--primary); }
 
-        /* TRÌNH PHÁT NHẠC LỚN */
+        /* TRÌNH PHÁT NHẠC LỚN CHÍNH */
         #main-player {
-            display: none; background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px); border-radius: 25px;
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            padding: 30px; margin-bottom: 40px;
-            box-shadow: 0 0 50px rgba(0, 210, 255, 0.2);
-            animation: slideIn 0.8s ease;
+            display: none; background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(25px); border-radius: 30px;
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            padding: 40px; margin-bottom: 40px;
+            box-shadow: 0 0 60px rgba(0, 210, 255, 0.2);
+            animation: slideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .player-flex { display: flex; gap: 30px; align-items: flex-start; }
-        #p-img { width: 250px; height: 250px; border-radius: 15px; object-fit: cover; border: 3px solid var(--primary); box-shadow: 0 0 20px var(--primary); }
+        .player-layout { display: flex; gap: 40px; align-items: stretch; }
         
-        .player-info { flex: 1; }
-        #p-title { font-size: 2rem; margin: 0; color: #fff; }
-        #p-artist { font-size: 1.2rem; color: var(--primary); margin: 10px 0; }
+        /* Bên trái: Ảnh tác giả */
+        .player-left { flex: 0 0 300px; text-align: center; }
+        #p-img { 
+            width: 300px; height: 300px; border-radius: 20px; 
+            object-fit: cover; border: 4px solid var(--primary); 
+            box-shadow: 0 0 30px var(--primary);
+            transition: 0.5s;
+        }
         
-        /* Khu vực lời bài hát */
+        /* Bên phải: Thông tin & Lời bài hát */
+        .player-right { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        #p-title { font-size: 2.2rem; margin: 0; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        #p-artist { font-size: 1.3rem; color: var(--primary); margin: 10px 0; font-weight: 300; }
+        
         .lyrics-box {
-            margin-top: 20px; height: 120px; overflow-y: auto;
-            padding: 15px; background: rgba(0,0,0,0.3);
-            border-radius: 10px; font-style: italic; color: #ccc;
-            line-height: 1.6; border-left: 3px solid var(--primary);
+            flex: 1; margin-top: 20px; height: 180px; overflow-y: auto;
+            padding: 20px; background: rgba(0,0,0,0.4);
+            border-radius: 15px; font-size: 16px; line-height: 1.8;
+            color: #efefef; border-left: 4px solid var(--primary);
+            white-space: pre-line; scroll-behavior: smooth;
         }
+        .lyrics-box::-webkit-scrollbar { width: 4px; }
+        .lyrics-box::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        /* Thanh tìm kiếm */
-        .search-box {
-            display: flex; gap: 10px; background: rgba(255,255,255,0.1);
-            padding: 10px 25px; border-radius: 50px; border: 1px solid var(--primary);
-            margin-bottom: 40px; box-shadow: 0 0 15px rgba(0,210,255,0.3);
+        /* Tìm kiếm */
+        .search-container {
+            display: flex; gap: 15px; background: rgba(255,255,255,0.08);
+            padding: 12px 25px; border-radius: 50px; border: 1px solid var(--primary);
+            margin-bottom: 50px; transition: 0.3s;
         }
+        .search-container:focus-within { box-shadow: 0 0 25px var(--primary); background: rgba(255,255,255,0.15); }
         input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 18px; }
-        button { background: var(--primary); border: none; padding: 10px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--primary); }
+        .search-btn { 
+            background: linear-gradient(45deg, var(--primary), #0072ff); 
+            border: none; padding: 12px 35px; border-radius: 30px; 
+            color: white; font-weight: bold; cursor: pointer; 
+        }
 
         /* Cột kết quả */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .column { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid #222; }
-        .card { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px; transition: 0.3s; cursor: pointer; }
-        .card:hover { background: rgba(0,210,255,0.15); transform: translateX(5px); }
-        .card img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        .card-meta { flex: 1; }
-        .card-meta b { display: block; font-size: 14px; color: var(--primary); }
-        .dl-link { font-size: 10px; text-decoration: none; color: #fff; border: 1px solid #555; padding: 3px 8px; border-radius: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .column { background: rgba(0, 0, 0, 0.3); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .col-header { text-align: center; margin-bottom: 20px; font-size: 1.2rem; letter-spacing: 2px; }
+        
+        .card { 
+            display: flex; align-items: center; gap: 15px; 
+            background: rgba(255,255,255,0.03); padding: 12px; 
+            border-radius: 12px; margin-bottom: 12px; transition: 0.3s; cursor: pointer; 
+        }
+        .card:hover { background: rgba(0,210,255,0.1); transform: scale(1.02); }
+        .card img { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; }
+        .card-info { flex: 1; }
+        .card-info b { display: block; font-size: 15px; margin-bottom: 4px; }
+        .card-info small { color: #888; font-size: 12px; }
+        
+        .btn-dl { 
+            text-decoration: none; font-size: 11px; color: #fff; 
+            border: 1px solid #444; padding: 5px 10px; border-radius: 6px; 
+        }
+        .btn-dl:hover { background: var(--primary); border-color: var(--primary); }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-40px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 768px) {
-            .player-flex { flex-direction: column; align-items: center; text-align: center; }
+        @media (max-width: 900px) {
+            .player-layout { flex-direction: column; align-items: center; text-align: center; }
             .grid { grid-template-columns: 1fr; }
+            #p-img { width: 220px; height: 220px; }
+            .player-left { flex: none; }
         }
     </style>
 </head>
@@ -82,150 +110,159 @@
 <div class="container">
     <div class="logo-area">
         <h1 class="logo-text">KHANG-MUSIC<span style="color: #fff;">.COM</span></h1>
+        <p style="color: var(--primary); font-size: 12px; letter-spacing: 3px;">HỆ THỐNG NHẠC VŨ TRỤ</p>
     </div>
 
     <div id="main-player">
-        <div class="player-flex">
-            <img id="p-img" src="" alt="Author">
-            <div class="player-info">
-                <h2 id="p-title">Tên Bài Hát</h2>
-                <div id="p-artist">Tác giả</div>
-                <audio id="audio-ctrl" controls style="width: 100%; margin-top: 10px; filter: hue-rotate(180deg) invert(1);"></audio>
+        <div class="player-layout">
+            <div class="player-left">
+                <img id="p-img" src="" alt="Album Cover">
+            </div>
+            <div class="player-right">
+                <div class="info-top">
+                    <h2 id="p-title">Sẵn sàng khám phá</h2>
+                    <div id="p-artist">Chọn một bài hát bên dưới</div>
+                    <audio id="main-audio" controls style="width: 100%; margin-top: 15px; filter: hue-rotate(180deg) invert(1);"></audio>
+                </div>
                 <div class="lyrics-box" id="lyrics-text">
-                    Đang tìm lời bài hát cho bạn...
+                    Lời bài hát sẽ hiện ở đây khi bạn phát nhạc...
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="search-input" placeholder="Nhập tên bài hát hoặc dán link Youtube...">
-        <button onclick="startSearch()">KHÁM PHÁ</button>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Tìm tên bài hát, ca sĩ, hoặc dán link Youtube...">
+        <button class="search-btn" onclick="executeSearch()">TÌM KIẾM</button>
     </div>
 
     <div class="grid">
         <div class="column">
-            <h3 style="color: var(--primary); text-align: center;">🎧 AUDIO MP3</h3>
+            <div class="col-header" style="color: var(--primary);">🎧 AUDIO MP3</div>
             <div id="mp3-results"></div>
         </div>
         <div class="column">
-            <h3 style="color: #ff416c; text-align: center;">🎬 VIDEO MP4</h3>
+            <div class="col-header" style="color: var(--accent);">🎬 VIDEO MP4</div>
             <div id="mp4-results"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // Bảo mật Key bằng cách nối chuỗi
     const a = "AIzaSyCXN0nU", b = "Fr76ntM2kyOH", c = "ZGSHyccvpHN0nR0";
-    const API_KEY = a + b + c;
-    const playerAudio = document.getElementById('audio-ctrl');
+    const KEY = a + b + c;
+    const audioPlayer = document.getElementById('main-audio');
 
-    async function startSearch() {
-        const q = document.getElementById('search-input').value;
-        if(!q) return;
+    async function executeSearch() {
+        const query = document.getElementById('search-input').value;
+        if(!query) return;
 
-        document.getElementById('mp3-results').innerHTML = "Đang quét...";
-        document.getElementById('mp4-results').innerHTML = "Đang quét...";
+        document.getElementById('mp3-results').innerHTML = "<p style='text-align:center; opacity:0.5;'>Đang dò sóng...</p>";
+        document.getElementById('mp4-results').innerHTML = "<p style='text-align:center; opacity:0.5;'>Đang dò sóng...</p>";
 
         try {
             const [saavn, yt] = await Promise.allSettled([
-                fetch(`https://saavn.me/search/songs?query=${q}`).then(r => r.json()),
-                fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${q}&type=video&key=${API_KEY}`).then(r => r.json())
+                fetch(`https://saavn.me/search/songs?query=${query}`).then(r => r.json()),
+                fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${query}&type=video&key=${KEY}`).then(r => r.json())
             ]);
 
             document.getElementById('mp3-results').innerHTML = "";
             document.getElementById('mp4-results').innerHTML = "";
 
             if(saavn.status === 'fulfilled' && saavn.value.data?.results) {
-                saavn.value.data.results.forEach(s => {
-                    renderCard('mp3-results', s.name, s.primaryArtists, s.image[2].link, s.downloadUrl[4].link, 'MP3');
+                saavn.value.data.results.forEach(item => {
+                    createCard('mp3-results', item.name, item.primaryArtists, item.image[2].link, item.downloadUrl[4].link, 'MP3');
                 });
             }
 
             if(yt.status === 'fulfilled' && yt.value.items) {
-                yt.value.items.forEach(v => {
-                    const id = v.id.videoId;
-                    renderCard('mp3-results', v.snippet.title, v.snippet.channelTitle, v.snippet.thumbnails.high.url, `https://api.vevioz.com/@api/button/mp3/${id}`, 'MP3');
-                    renderCard('mp4-results', v.snippet.title, v.snippet.channelTitle, v.snippet.thumbnails.high.url, `https://api.vevioz.com/@api/button/videos/${id}`, 'MP4');
+                yt.value.items.forEach(video => {
+                    const id = video.id.videoId;
+                    const title = video.snippet.title;
+                    const thumb = video.snippet.thumbnails.high.url;
+                    const artist = video.snippet.channelTitle;
+
+                    createCard('mp3-results', title, artist, thumb, `https://api.vevioz.com/@api/button/mp3/${id}`, 'MP3');
+                    createCard('mp4-results', title, artist, thumb, `https://api.vevioz.com/@api/button/videos/${id}`, 'MP4');
                 });
             }
-        } catch (e) { alert("Lỗi kết nối vũ trụ!"); }
+        } catch (err) { alert("Lỗi kết nối trạm không gian!"); }
     }
 
-    function renderCard(target, title, artist, img, link, type) {
+    function createCard(targetId, title, artist, img, link, ext) {
         const div = document.createElement('div');
         div.className = 'card';
-        div.onclick = () => playMusic(title, artist, img, link);
+        div.onclick = () => loadPlayer(title, artist, img, link);
         div.innerHTML = `
             <img src="${img}">
-            <div class="card-meta">
+            <div class="card-info">
                 <b>${title}</b>
-                <small style="color:#888">${artist}</small>
+                <small>${artist}</small>
             </div>
-            <a href="${link}" target="_blank" class="dl-link" onclick="event.stopPropagation()">Tải ${type}</a>
+            <a href="${link}" target="_blank" class="btn-dl" onclick="event.stopPropagation()">Tải ${ext}</a>
         `;
-        document.getElementById(target).appendChild(div);
+        document.getElementById(targetId).appendChild(div);
     }
 
-    async function playMusic(title, artist, img, link) {
+    async function loadPlayer(title, artist, img, link) {
         document.getElementById('main-player').style.display = 'block';
         document.getElementById('p-title').innerText = title;
         document.getElementById('p-artist').innerText = artist;
         document.getElementById('p-img').src = img;
         
-        playerAudio.src = link;
-        playerAudio.play();
+        audioPlayer.src = link;
+        audioPlayer.play();
 
-        // Lấy lời bài hát từ API miễn phí
-        const lyricsBox = document.getElementById('lyrics-text');
-        lyricsBox.innerText = "Đang tìm lời bài hát...";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        const lyricsContainer = document.getElementById('lyrics-text');
+        lyricsContainer.innerHTML = "📡 Đang dò tìm lời bài hát...";
+
         try {
             const res = await fetch(`https://api.lyrics.ovh/v1/${artist}/${title}`);
             const data = await res.json();
-            lyricsBox.innerText = data.lyrics || "Rất tiếc, chưa có lời cho bài hát này trong không gian.";
+            lyricsContainer.innerText = data.lyrics || `🚀 Không tìm thấy lời bài hát.\n\nĐang tận hưởng giai điệu không lời từ hành tinh của ${artist}...`;
         } catch {
-            lyricsBox.innerText = "Không tìm thấy lời bài hát.";
+            lyricsContainer.innerText = "⚠️ Không thể kết nối thư viện lời nhạc.";
         }
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Canvas hiệu ứng sao lấp lánh
+    // HIỆU ỨNG SAO CANVAS
     const canvas = document.getElementById('star-canvas');
     const ctx = canvas.getContext('2d');
     let stars = [];
 
-    function resize() {
+    function initStars() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    for(let i=0; i<200; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2,
-            opacity: Math.random(),
-            speed: Math.random() * 0.02
-        });
+        stars = [];
+        for(let i=0; i<200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.5,
+                alpha: Math.random(),
+                step: Math.random() * 0.02
+            });
+        }
     }
 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function animateStars() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
         stars.forEach(s => {
-            ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
             ctx.beginPath();
-            ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+            ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
             ctx.fill();
-            s.opacity += s.speed;
-            if(s.opacity > 1 || s.opacity < 0) s.speed = -s.speed;
+            s.alpha += s.step;
+            if(s.alpha > 1 || s.alpha < 0) s.step = -s.step;
         });
-        requestAnimationFrame(draw);
+        requestAnimationFrame(animateStars);
     }
-    draw();
+
+    window.addEventListener('resize', initStars);
+    initStars();
+    animateStars();
 </script>
 
 </body>
