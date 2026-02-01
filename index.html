@@ -3,61 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khang Music Pro</title>
+    <title>KHANG MUSIC VIP</title>
     <style>
-        :root { --primary: #00d2ff; --bg: #050505; }
-        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; }
-        .container { max-width: 600px; margin: auto; padding: 15px; }
+        :root { --neon: #00f2ff; --pink: #ff007f; --bg: #08080a; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
         
-        /* PLAYER CHÍNH */
-        #player-box { 
-            display: none; background: #111; border-radius: 20px; 
-            padding: 20px; border: 1px solid var(--primary); margin-bottom: 20px;
+        /* HEADER */
+        .header { text-align: center; padding: 20px 0; border-bottom: 1px solid #222; margin-bottom: 20px; }
+        .header h1 { font-size: 24px; letter-spacing: 2px; color: var(--neon); text-shadow: 0 0 10px var(--neon); margin: 0; }
+
+        /* TRÌNH PHÁT NHẠC XỊN */
+        #player { 
+            display: none; background: linear-gradient(145deg, #111, #222); 
+            border-radius: 20px; padding: 20px; border: 1px solid #333; margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .player-flex { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        #p-img { width: 200px; height: 200px; border-radius: 15px; border: 2px solid var(--primary); object-fit: cover; }
+        .player-top { display: flex; gap: 15px; align-items: center; }
+        #p-img { width: 100px; height: 100px; border-radius: 12px; object-fit: cover; border: 2px solid var(--neon); }
+        .p-info { flex: 1; overflow: hidden; }
+        .p-info h3 { margin: 0; font-size: 16px; color: var(--neon); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .lyrics-window { 
-            width: 100%; height: 120px; overflow-y: auto; background: #000; 
-            border-radius: 10px; padding: 10px; font-size: 14px; color: #aaa;
-            border: 1px solid #333; line-height: 1.6;
+        .download-zone { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-dl { flex: 1; padding: 10px; border-radius: 10px; text-align: center; text-decoration: none; font-weight: bold; font-size: 13px; color: #fff; }
+        .bg-mp3 { background: #333; border: 1px solid var(--neon); }
+        .bg-mp4 { background: #333; border: 1px solid var(--pink); }
+
+        .lyrics-box { 
+            margin-top: 15px; height: 100px; overflow-y: auto; background: rgba(0,0,0,0.5); 
+            border-radius: 10px; padding: 10px; font-size: 13px; color: #888; border: 1px solid #222;
         }
 
         /* TÌM KIẾM */
-        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid var(--primary); background: #000; color: #fff; outline: none; }
-        button { padding: 0 20px; border-radius: 25px; border: none; background: var(--primary); font-weight: bold; }
+        .search-wrap { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: #151515; color: #fff; outline: none; }
+        input:focus { border-color: var(--neon); }
+        .btn-search { background: var(--neon); border: none; padding: 0 20px; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
-        /* DANH SÁCH */
+        /* DANH SÁCH KẾT QUẢ */
         .song-card { 
-            display: flex; align-items: center; gap: 10px; background: #1a1a1a; 
-            padding: 10px; border-radius: 12px; margin-bottom: 10px; cursor: pointer;
+            display: flex; align-items: center; gap: 12px; background: #121214; 
+            padding: 12px; border-radius: 15px; margin-bottom: 12px; cursor: pointer;
+            transition: 0.2s; border: 1px solid #1a1a1a;
         }
-        .song-card img { width: 60px; height: 60px; border-radius: 8px; }
-        .song-info { flex: 1; overflow: hidden; }
-        .song-info b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary); }
+        .song-card:active { transform: scale(0.97); background: #1a1a1c; }
+        .song-card img { width: 55px; height: 55px; border-radius: 8px; }
+        .song-meta { flex: 1; overflow: hidden; }
+        .song-meta b { display: block; font-size: 14px; margin-bottom: 4px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .song-meta span { font-size: 12px; color: #666; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 style="text-align: center; color: var(--primary);">KHANG-MUSIC.COM</h2>
-
-    <div id="player-box">
-        <div class="player-flex">
-            <img id="p-img" src="">
-            <div style="width: 100%; text-align: center;">
-                <h3 id="p-title" style="margin: 5px 0;"></h3>
-                <div id="p-artist" style="color: #888; font-size: 14px; margin-bottom: 10px;"></div>
-                <audio id="main-audio" controls style="width: 100%;"></audio>
-                <div class="lyrics-window" id="lyrics-box">Lời bài hát sẽ hiện ở đây...</div>
-            </div>
-        </div>
+    <div class="header">
+        <h1>KHANG-MUSIC<span style="color:#fff">.COM</span></h1>
     </div>
 
-    <div class="search-bar">
-        <input type="text" id="query" placeholder="Tìm tên bài hát...">
-        <button onclick="doSearch()">TÌM</button>
+    <div id="player">
+        <div class="player-top">
+            <img id="p-img" src="">
+            <div class="p-info">
+                <h3 id="p-title"></h3>
+                <small id="p-artist" style="color:#666"></small>
+                <audio id="audio" controls style="width: 100%; margin-top: 10px; height: 30px;"></audio>
+            </div>
+        </div>
+        
+        <div class="download-zone">
+            <a id="dl-mp3" target="_blank" class="btn-dl bg-mp3">TẢI MP3</a>
+            <a id="dl-mp4" target="_blank" class="btn-dl bg-mp4">TẢI MP4 (VIDEO)</a>
+        </div>
+
+        <div class="lyrics-box" id="lyrics">Lời bài hát sẽ hiện ở đây...</div>
+    </div>
+
+    <div class="search-wrap">
+        <input type="text" id="inp" placeholder="Tên bài hát hoặc ca sĩ...">
+        <button class="btn-search" onclick="search()">TÌM</button>
     </div>
 
     <div id="results"></div>
@@ -65,13 +88,13 @@
 
 <script>
     const KEY = "AIzaSyCXN0nU" + "Fr76ntM2kyOH" + "ZGSHyccvpHN0nR0";
-    const audio = document.getElementById('main-audio');
+    const audio = document.getElementById('audio');
 
-    async function doSearch() {
-        const q = document.getElementById('query').value;
+    async function search() {
+        const q = document.getElementById('inp').value;
         if(!q) return;
         const resDiv = document.getElementById('results');
-        resDiv.innerHTML = "Đang quét tín hiệu...";
+        resDiv.innerHTML = "<p style='text-align:center;color:#666'>🚀 Đang kết nối server...</p>";
 
         try {
             const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${q}&type=video&key=${KEY}`;
@@ -79,41 +102,52 @@
             
             resDiv.innerHTML = "";
             data.items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'song-card';
+                const id = item.id.videoId;
                 const title = item.snippet.title;
                 const thumb = item.snippet.thumbnails.high.url;
                 const channel = item.snippet.channelTitle;
-                const id = item.id.videoId;
 
-                div.onclick = () => playSong(title, channel, thumb, id);
-                div.innerHTML = `<img src="${thumb}"><div class="song-info"><b>${title}</b><small>${channel}</small></div>`;
+                const div = document.createElement('div');
+                div.className = 'song-card';
+                div.onclick = () => play(title, channel, thumb, id);
+                div.innerHTML = `
+                    <img src="${thumb}">
+                    <div class="song-meta">
+                        <b>${title}</b>
+                        <span>${channel}</span>
+                    </div>
+                `;
                 resDiv.appendChild(div);
             });
-        } catch (e) { resDiv.innerHTML = "Lỗi tìm kiếm, thử lại sau!"; }
+        } catch (e) { resDiv.innerHTML = "Lỗi hệ thống!"; }
     }
 
-    async function playSong(title, artist, img, id) {
-        document.getElementById('player-box').style.display = 'block';
+    async function play(title, artist, img, id) {
+        document.getElementById('player').style.display = 'block';
         document.getElementById('p-title').innerText = title;
         document.getElementById('p-artist').innerText = artist;
         document.getElementById('p-img').src = img;
         
-        // Dùng server trung gian mới để lấy link MP3 ổn định hơn
-        audio.src = `https://api.v2.vevioz.com/@api/button/mp3/${id}`;
-        audio.play().catch(() => alert("Nhấn Play để nghe nhạc!"));
+        // Link phát & tải (Cập nhật server mới ổn định)
+        const mp3Link = `https://api.vevioz.com/@api/button/mp3/${id}`;
+        const mp4Link = `https://api.vevioz.com/@api/button/videos/${id}`;
+        
+        audio.src = mp3Link;
+        audio.play().catch(() => {});
+        
+        document.getElementById('dl-mp3').href = mp3Link;
+        document.getElementById('dl-mp4').href = mp4Link;
 
         window.scrollTo({top: 0, behavior: 'smooth'});
 
-        // Lấy lời
-        const lBox = document.getElementById('lyrics-box');
-        lBox.innerText = "Đang tải lời...";
+        // Xử lý tìm lời bài hát (Lọc tên sạch hơn)
+        const lBox = document.getElementById('lyrics');
+        lBox.innerText = "⏳ Đang quét lời...";
         try {
-            // Tách tên bài và ca sĩ từ tiêu đề Youtube
-            const cleanTitle = title.split('|')[0].split('-')[0].trim();
+            const cleanTitle = title.replace(/\(Official.*\)|\[Lyric.*\]|MV|Vevo|-/gi, "").trim();
             const lRes = await fetch(`https://api.lyrics.ovh/v1/${artist}/${cleanTitle}`).then(r => r.json());
-            lBox.innerText = lRes.lyrics || "Không tìm thấy lời bài hát này.";
-        } catch { lBox.innerText = "Không tìm thấy lời."; }
+            lBox.innerText = lRes.lyrics || "🚀 Không tìm thấy lời bài hát này.";
+        } catch { lBox.innerText = "Chưa có lời."; }
     }
 </script>
 </body>
